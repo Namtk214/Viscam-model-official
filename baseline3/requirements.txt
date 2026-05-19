@@ -1,0 +1,16 @@
+# Core ML frameworks
+torch>=2.0.0
+transformers>=4.30.0
+
+# Sentence embedding
+sentence-transformers>=2.2.0
+
+# Vietnamese NLP
+pyvi>=0.1
+
+# Data processing
+numpy>=1.23.0
+scikit-learn>=1.2.0
+
+# Progress bar (optional, for better UX)
+tqdm>=4.65.0
