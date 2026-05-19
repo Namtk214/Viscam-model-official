@@ -62,8 +62,9 @@ def evaluate_binary(model, loader, device, threshold: float) -> Dict:
         tmask   = batch["turn_mask"].to(device)
         labels  = batch["labels"].to(device)
         n_turns = batch["n_turns"]
+        turn_texts = batch.get("turn_texts", None)
 
-        out = model(ids, masks, tmask, labels=labels)
+        out = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
         B = labels.size(0)
         if out["loss"] is not None:
             total_loss += out["loss"].item() * B
@@ -100,8 +101,9 @@ def evaluate_multiclass(model, loader, device, scenario_map: Dict[str, int]) -> 
         masks  = batch["attn_masks"].to(device)
         tmask  = batch["turn_mask"].to(device)
         labels = batch["labels"].to(device)
+        turn_texts = batch.get("turn_texts", None)
 
-        out = model(ids, masks, tmask, labels=labels)
+        out = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
         B = labels.size(0)
         if out["loss"] is not None:
             total_loss += out["loss"].item() * B
@@ -175,8 +177,9 @@ def run_binary_epoch(model, loader, optimizer, scheduler, device, cfg: Config):
         masks  = batch["attn_masks"].to(device)
         tmask  = batch["turn_mask"].to(device)
         labels = batch["labels"].to(device)
+        turn_texts = batch.get("turn_texts", None)
 
-        out  = model(ids, masks, tmask, labels=labels)
+        out  = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
         loss = out["loss"] / cfg.bin_grad_accum
         loss.backward()
 
@@ -210,8 +213,9 @@ def run_mc_epoch(model, loader, optimizer, scheduler, device, cfg: Config):
         masks  = batch["attn_masks"].to(device)
         tmask  = batch["turn_mask"].to(device)
         labels = batch["labels"].to(device)
+        turn_texts = batch.get("turn_texts", None)
 
-        out  = model(ids, masks, tmask, labels=labels)
+        out  = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
         loss = out["loss"] / cfg.mc_grad_accum
         loss.backward()
 
@@ -335,22 +339,27 @@ def train_binary(cfg: Config, train_dlg: List[Dict], test_dlg: List[Dict], token
     print("STAGE 1: BINARY TRAINING")
     print("=" * 60)
 
+    # Split test_dlg into val (50%) and final test (50%)
+    val_dlg, final_test_dlg = stratified_val_split(
+        test_dlg, val_ratio=0.5, seed=cfg.seed,
+    )
+    print(f"Split test set: Val={len(val_dlg)} | Test={len(final_test_dlg)}")
+
     if cfg.truncate_aug:
         n_before  = len(train_dlg)
         train_dlg = truncate_augment(train_dlg, cfg.aug_k, cfg.aug_min_turns)
         print(f"Augmented: {n_before} → {len(train_dlg)}")
 
-    train_split, val_split = stratified_val_split(
-        train_dlg, val_ratio=cfg.val_ratio, seed=cfg.seed,
-    )
+    # Use 100% of train_dlg for training (no split from train anymore)
+    train_split = train_dlg
     scam_tr = sum(1 for d in train_split if d["label"] == "scam")
     harm_tr = sum(1 for d in train_split if d["label"] == "harmless")
     print(f"Train: {len(train_split)} (scam={scam_tr}, harmless={harm_tr}) "
-          f"| Val: {len(val_split)} | Test: {len(test_dlg)}")
+          f"| Val: {len(val_dlg)} | Test: {len(final_test_dlg)}")
 
     train_ds = BinaryDialogueDataset(train_split, tokenizer, cfg.max_turn_len, cfg.max_turns)
-    val_ds   = BinaryDialogueDataset(val_split,   tokenizer, cfg.max_turn_len, cfg.max_turns)
-    test_ds  = BinaryDialogueDataset(test_dlg,    tokenizer, cfg.max_turn_len, cfg.max_turns)
+    val_ds   = BinaryDialogueDataset(val_dlg,     tokenizer, cfg.max_turn_len, cfg.max_turns)
+    test_ds  = BinaryDialogueDataset(final_test_dlg, tokenizer, cfg.max_turn_len, cfg.max_turns)
 
     train_loader = DataLoader(train_ds, batch_size=cfg.bin_batch_size, shuffle=True,
                               collate_fn=collate_fn, num_workers=2, pin_memory=True)
@@ -445,23 +454,28 @@ def train_multiclass(cfg: Config, train_dlg: List[Dict], test_dlg: List[Dict],
 
     scam_train = [d for d in train_dlg
                   if d["label"] == "scam" and d.get("scenario") in scenario_map]
-    scam_test  = [d for d in test_dlg
-                  if d["label"] == "scam" and d.get("scenario") in scenario_map]
+    scam_test_all = [d for d in test_dlg
+                     if d["label"] == "scam" and d.get("scenario") in scenario_map]
+
+    # Split test into val (50%) and final test (50%)
+    scam_val, scam_test = stratified_val_split(
+        scam_test_all, val_ratio=0.5, seed=cfg.seed,
+        label_fn=lambda d: d.get("scenario", "?"),
+    )
+    print(f"Split scam test: Val={len(scam_val)} | Test={len(scam_test)}")
 
     if cfg.truncate_aug:
         n_before   = len(scam_train)
         scam_train = truncate_augment(scam_train, cfg.aug_k, cfg.aug_min_turns)
         print(f"Scam aug: {n_before} → {len(scam_train)}")
 
-    scam_train, scam_val = stratified_val_split(
-        scam_train, val_ratio=cfg.val_ratio, seed=cfg.seed,
-        label_fn=lambda d: d.get("scenario", "?"),
-    )
+    # Use 100% of scam_train for training (no split from train anymore)
     print(f"Scam Train: {len(scam_train)}  "
           f"dist={dict(Counter(d['scenario'] for d in scam_train))}")
     print(f"Scam Val:   {len(scam_val)}   "
           f"dist={dict(Counter(d['scenario'] for d in scam_val))}")
-    print(f"Scam Test:  {len(scam_test)}")
+    print(f"Scam Test:  {len(scam_test)}  "
+          f"dist={dict(Counter(d['scenario'] for d in scam_test))}")
 
     train_ds = ScamMulticlassDataset(scam_train, tokenizer,
                                      cfg.max_turn_len, cfg.max_turns, scenario_map)
