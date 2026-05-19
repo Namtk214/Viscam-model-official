@@ -1,0 +1,31 @@
+{
+  "ece": 0.12823290920873998,
+  "mce": 0.33074153810739515,
+  "brier": 0.19345636608378639,
+  "auroc": 0.8173433905740116,
+  "n_bins": 10,
+  "strategy": "uniform",
+  "n_samples": 614,
+  "best_threshold": 0.30000000000000004,
+  "best_f1": 0.737012987012987,
+  "early_stop_used": {
+    "threshold": 0.5,
+    "n_triggered": 577,
+    "avg_stop_turn_triggered": 2.3310225303292893,
+    "avg_stop_turn_scam_preds": 2.360344827586207,
+    "avg_rel_pos_triggered_pct": 22.762260451862105,
+    "avg_rel_pos_scam_preds_pct": 23.161766001249028,
+    "detection_rate": 1.0,
+    "false_alarm_rate": 0.8985074626865671
+  },
+  "early_stop_best": {
+    "threshold": 0.30000000000000004,
+    "n_triggered": 614,
+    "avg_stop_turn_triggered": 1.0,
+    "avg_stop_turn_scam_preds": 1.0,
+    "avg_rel_pos_triggered_pct": 10.78317614953742,
+    "avg_rel_pos_scam_preds_pct": 10.78317614953742,
+    "detection_rate": 1.0,
+    "false_alarm_rate": 1.0
+  }
+}
