@@ -173,9 +173,8 @@ def run_binary_epoch(model, loader, optimizer, scheduler, device, cfg: Config):
         masks  = batch["attn_masks"].to(device)
         tmask  = batch["turn_mask"].to(device)
         labels = batch["labels"].to(device)
-        turn_texts = batch.get("turn_texts", None)
 
-        out  = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
+        out  = model(ids, masks, tmask, labels=labels)
         loss = out["loss"] / cfg.bin_grad_accum
         loss.backward()
 
@@ -209,9 +208,8 @@ def run_mc_epoch(model, loader, optimizer, scheduler, device, cfg: Config):
         masks  = batch["attn_masks"].to(device)
         tmask  = batch["turn_mask"].to(device)
         labels = batch["labels"].to(device)
-        turn_texts = batch.get("turn_texts", None)
 
-        out  = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
+        out  = model(ids, masks, tmask, labels=labels)
         loss = out["loss"] / cfg.mc_grad_accum
         loss.backward()
 
