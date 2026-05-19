@@ -62,9 +62,7 @@ def evaluate_binary(model, loader, device, threshold: float) -> Dict:
         tmask   = batch["turn_mask"].to(device)
         labels  = batch["labels"].to(device)
         n_turns = batch["n_turns"]
-        turn_texts = batch.get("turn_texts", None)
-
-        out = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
+        out = model(ids, masks, tmask, labels=labels)
         B = labels.size(0)
         if out["loss"] is not None:
             total_loss += out["loss"].item() * B
@@ -101,9 +99,7 @@ def evaluate_multiclass(model, loader, device, scenario_map: Dict[str, int]) -> 
         masks  = batch["attn_masks"].to(device)
         tmask  = batch["turn_mask"].to(device)
         labels = batch["labels"].to(device)
-        turn_texts = batch.get("turn_texts", None)
-
-        out = model(ids, masks, tmask, labels=labels, turn_texts=turn_texts)
+        out = model(ids, masks, tmask, labels=labels)
         B = labels.size(0)
         if out["loss"] is not None:
             total_loss += out["loss"].item() * B
