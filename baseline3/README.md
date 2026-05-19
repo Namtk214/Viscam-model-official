@@ -91,6 +91,32 @@ Your training and test data should be JSON files with the following structure:
 - `turns`: List of conversation turns (strings)
 - `scenario`: Scam scenario letter (`"A"`, `"B"`, `"C"`, `"D"`) or `null` for harmless
 
+### Data Split Strategy
+
+**IMPORTANT:** The model uses a **test-based validation** approach to prevent overfitting:
+
+```
+train.json ──────────> Training set (100%)
+                       ↓
+                    Model training
+
+test.json  ──┬──> Validation set (50%)   ← Early stopping
+             └──> Test set (50%)          ← Final evaluation
+```
+
+**Why this approach:**
+- ✅ **Prevents distribution mismatch**: Validation data comes from the same distribution as test data
+- ✅ **Better generalization**: Model is evaluated on unseen data domain
+- ✅ **Realistic evaluation**: Early stopping based on real-world-like data
+- ✅ **No data leakage**: Test set remains completely unseen during training
+
+**How it works:**
+1. The script automatically splits `test.json` into:
+   - **Validation set** (50%): Used for early stopping and hyperparameter tuning
+   - **Test set** (50%): Used only for final evaluation after training
+2. `train.json` is used 100% for training (no split)
+3. Stratified split ensures balanced label distribution in val/test
+
 ---
 
 ## 🚀 Quick Start
