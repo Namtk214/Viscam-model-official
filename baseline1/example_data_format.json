@@ -1,0 +1,91 @@
+[
+  {
+    "label": "scam",
+    "scenario": "A",
+    "turns": [
+      "Chào chị, em là nhân viên ngân hàng ABC",
+      "Vâng, có chuyện gì ạ?",
+      "Tài khoản của chị đang bị khóa do lý do bảo mật",
+      "Thật ư? Làm sao để mở khóa?",
+      "Chị vui lòng cung cấp mã OTP để em xác minh",
+      "Mã của em là 123456",
+      "Cảm ơn chị, em đang xử lý"
+    ]
+  },
+  {
+    "label": "scam",
+    "scenario": "B",
+    "turns": [
+      "Anh ơi, em gặp tai nạn rồi",
+      "Tai nạn gì vậy?",
+      "Em đang ở bệnh viện, cần tiền cấp cứu gấp",
+      "Mày là ai? Tao không biết mày",
+      "Anh ơi, em là con anh đây, đang bị nạn",
+      "Con tao đang ở nhà mà"
+    ]
+  },
+  {
+    "label": "scam",
+    "scenario": "C",
+    "turns": [
+      "Bạn có muốn kiếm thêm thu nhập không?",
+      "Có, kiếm như thế nào?",
+      "Bạn chỉ cần đầu tư 10 triệu, sau 1 tháng nhận lại 20 triệu",
+      "Nghe có vẻ tốt, làm gì để được vậy?",
+      "Bạn chuyển tiền vào tài khoản này nhé"
+    ]
+  },
+  {
+    "label": "scam",
+    "scenario": "D",
+    "turns": [
+      "Xin chào, bạn có muốn vay tiền không?",
+      "Có, tôi đang cần gấp",
+      "Chúng tôi cho vay với lãi suất 0%, không cần thế chấp",
+      "Thật không? Có phải lừa đảo không?",
+      "Không đâu, bạn chỉ cần đóng phí hồ sơ 2 triệu trước",
+      "Ừ được, tôi chuyển cho bạn"
+    ]
+  },
+  {
+    "label": "harmless",
+    "scenario": null,
+    "turns": [
+      "Chào bạn, hôm nay thời tiết đẹp nhỉ?",
+      "Ừ, trời nắng đẹp lắm",
+      "Mình đi cafe nhé?",
+      "Được, mình đi lúc 3 giờ chiều nhé"
+    ]
+  },
+  {
+    "label": "harmless",
+    "scenario": null,
+    "turns": [
+      "Sếp ơi, em xin phép nghỉ mai được không ạ?",
+      "Được, lý do gì thế?",
+      "Em có việc gia đình cần giải quyết ạ",
+      "Ừ được, nhớ hoàn thành công việc trước khi nghỉ nhé"
+    ]
+  },
+  {
+    "label": "harmless",
+    "scenario": null,
+    "turns": [
+      "Mẹ ơi, con về ăn cơm không ạ?",
+      "Mẹ nấu rồi con, về đi",
+      "Vâng, con về ngay ạ"
+    ]
+  },
+  {
+    "label": "scam",
+    "scenario": "A",
+    "turns": [
+      "Chào anh, em là cảnh sát giao thông",
+      "Vâng, có vấn đề gì ạ?",
+      "Xe của anh vi phạm, phạt 5 triệu",
+      "Tại sao? Tôi không vi phạm gì cả",
+      "Anh có thể giảm phạt nếu đóng ngay",
+      "Chuyển vào tài khoản nào?"
+    ]
+  }
+]
